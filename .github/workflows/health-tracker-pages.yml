@@ -2,6 +2,10 @@ name: Deploy health-tracker to Pages
 
 # 2週間体調記録アプリ(health-tracker/)を GitHub Pages に公開する。
 # 本体(株価分析)のCI/デプロイとは独立。health-tracker/ 配下の変更時のみ動作。
+#
+# 方式: health-tracker/ の中身を gh-pages ブランチのルートへ公開（クラシックPages）。
+# github-pages 環境のブランチ保護に依存しないため、非デフォルトブランチ/フォークでも動作する。
+# 初回のみ Settings → Pages → Source を「Deploy from a branch: gh-pages / (root)」に設定する。
 
 on:
   push:
@@ -14,36 +18,33 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
-# 同時実行は最新のみ
 concurrency:
-  group: "pages"
+  group: "gh-pages-health-tracker"
   cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-        with:
-          # リポジトリ設定で未有効でも、ワークフローから Pages を自動有効化する
-          enablement: true
-
-      - name: Upload health-tracker as site root
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: health-tracker
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Publish health-tracker to gh-pages branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # 公開する中身を取り出し、Jekyll処理を無効化
+          rm -rf /tmp/site
+          cp -r health-tracker /tmp/site
+          touch /tmp/site/.nojekyll
+          cd /tmp/site
+          git init -q
+          git checkout -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Deploy health-tracker (${GITHUB_SHA})"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
