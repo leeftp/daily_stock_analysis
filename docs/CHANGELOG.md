@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - [修复] 优化多 Agent 与单 Agent 的预算护栏语义：当后续阶段/步骤剩余预算低于最小阈值（首阶段除外）时会主动跳过并进行降级处理；若当前已完成阶段可支持构建降级报告，则返回 `success=True` 并携带非空内容；否则返回 `success=False`、`content=""`；`run_agent_loop` 预算过低时当前仍返回失败降级语义（`success=False`、`content=""`），`AgentExecutor` 保持统一下游契约。
 
 - [新功能] 集成 Anspire Search 作为可选语义搜索后端; 配置 `ANSPIRE_*` 可使用Anspire Search获取实时行情及新闻资讯，未配置时行为与此前一致。Anspire Search请使用 `tests/test_anspire_search.py`（手动脚本）。
+- [新功能] 新增 `health-tracker/` 独立静态健康记录应用（体重/水分/步数/睡眠/心情，数据存于浏览器 localStorage，无构建依赖），并新增 `health-tracker-pages.yml` 工作流在 `health-tracker/**` 变更时将其部署到 GitHub Pages（支持 workflow_dispatch 手动触发）。首次需在仓库 Settings → Pages 将 Source 设为 GitHub Actions。
 
 ## [3.12.0] - 2026-04-01
 

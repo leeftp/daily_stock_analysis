@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="シンプルな健康記録トラッカー。体重・水分・歩数・睡眠・気分を毎日記録できます。" />
+  <title>Health Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>🩺 Health Tracker</h1>
+    <p class="tagline">毎日の体重・水分・歩数・睡眠・気分を記録</p>
+  </header>
+
+  <main class="container">
+    <section class="card" aria-labelledby="form-title">
+      <h2 id="form-title">記録する</h2>
+      <form id="entry-form" autocomplete="off">
+        <div class="grid">
+          <label>
+            日付
+            <input type="date" id="date" name="date" required />
+          </label>
+          <label>
+            体重 (kg)
+            <input type="number" id="weight" name="weight" step="0.1" min="0" placeholder="例: 62.5" />
+          </label>
+          <label>
+            水分 (杯)
+            <input type="number" id="water" name="water" step="1" min="0" placeholder="例: 8" />
+          </label>
+          <label>
+            歩数
+            <input type="number" id="steps" name="steps" step="1" min="0" placeholder="例: 8000" />
+          </label>
+          <label>
+            睡眠 (時間)
+            <input type="number" id="sleep" name="sleep" step="0.5" min="0" placeholder="例: 7.5" />
+          </label>
+          <label>
+            気分
+            <select id="mood" name="mood">
+              <option value="">—</option>
+              <option value="😄">😄 とても良い</option>
+              <option value="🙂">🙂 良い</option>
+              <option value="😐">😐 普通</option>
+              <option value="😕">😕 いまいち</option>
+              <option value="😣">😣 つらい</option>
+            </select>
+          </label>
+        </div>
+        <button type="submit" class="btn-primary">保存</button>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="summary-title">
+      <h2 id="summary-title">サマリー（直近7日）</h2>
+      <div id="summary" class="summary-grid"></div>
+    </section>
+
+    <section class="card" aria-labelledby="chart-title">
+      <h2 id="chart-title">体重の推移</h2>
+      <div id="chart" class="chart"></div>
+    </section>
+
+    <section class="card" aria-labelledby="history-title">
+      <div class="card-head">
+        <h2 id="history-title">履歴</h2>
+        <div class="actions">
+          <button type="button" id="export-btn" class="btn-ghost">エクスポート</button>
+          <button type="button" id="clear-btn" class="btn-ghost danger">全削除</button>
+        </div>
+      </div>
+      <div id="history"></div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>データはこの端末のブラウザ（localStorage）にのみ保存されます。</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
