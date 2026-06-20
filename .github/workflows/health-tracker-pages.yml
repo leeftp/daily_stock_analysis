@@ -35,6 +35,9 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        with:
+          # リポジトリ設定で未有効でも、ワークフローから Pages を自動有効化する
+          enablement: true
 
       - name: Upload health-tracker as site root
         uses: actions/upload-pages-artifact@v3
