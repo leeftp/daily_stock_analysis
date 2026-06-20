@@ -119,11 +119,14 @@
         <span class="q">通知する時刻</span>
         <input type="time" id="remindTime" value="22:00">
       </label>
-      <button class="btn secondary" id="enableNotify" style="margin-top:12px">📱 この端末で通知をオンにする</button>
-      <button class="btn ghost" id="dlIcs">📅 カレンダーに14日分の毎日リマインドを追加（.ics）</button>
-      <p class="muted" style="margin-top:10px">
-        通知オンはアプリ（この画面）を開いている／ホーム追加した時に届きます。確実に毎日鳴らすには
-        <b>.ics をスマホのカレンダーに取り込む</b>のがおすすめです。
+      <button class="btn" id="dlIcs" style="margin-top:12px">📅 カレンダーに毎日リマインドを追加（おすすめ）</button>
+      <p class="muted" style="margin-top:8px">
+        ボタンを押すと <b>.ics ファイル</b>がダウンロードされます。それを<b>カレンダーアプリで開く（取り込む）</b>と、
+        14日間・毎日この時刻にスマホ標準の通知が出ます。アプリを閉じていても鳴るので確実です。
+      </p>
+      <button class="btn ghost" id="enableNotify" style="margin-top:14px">📱 ブラウザ通知も使う（対応端末のみ）</button>
+      <p class="muted" id="notifyHint" style="margin-top:8px">
+        ※ iPhone の Safari タブはブラウザ通知に対応していません。上の<b>カレンダー連携</b>をお使いください。
       </p>
     </div>
   </div>
@@ -390,14 +393,36 @@
       scheduleLocalNotify();
     }, ms);
   }
+  function guideToCalendar(reason){
+    const hint=$("#notifyHint");
+    hint.innerHTML = "⚠️ "+reason+"<br>このボタンは使えません。上の <b>📅 カレンダーに毎日リマインドを追加</b> をお使いください（iPhoneでも確実に鳴ります）。";
+    hint.style.color = "var(--bad)";
+    $("#dlIcs").animate?.([{transform:"scale(1)"},{transform:"scale(1.04)"},{transform:"scale(1)"}],{duration:500});
+    toast("カレンダー連携をご利用ください");
+  }
   $("#enableNotify").addEventListener("click",async()=>{
-    if(!("Notification" in window)){ toast("この端末は通知に未対応です"); return; }
-    let p=Notification.permission;
-    if(p!=="granted") p=await Notification.requestPermission();
+    if(!("Notification" in window)){
+      guideToCalendar("この端末（ブラウザ）はWeb通知に対応していません。");
+      return;
+    }
+    let p;
+    try{
+      p=Notification.permission;
+      if(p!=="granted") p=await Notification.requestPermission();
+    }catch(e){
+      guideToCalendar("この環境では通知の許可を取得できませんでした。");
+      return;
+    }
     if(p==="granted"){
       scheduleLocalNotify();
       try{ new Notification("通知をオンにしました ✅",{body:"毎日 "+cfg.remindTime+" にお知らせします（アプリを開いている間）。"}); }catch(e){}
+      $("#notifyHint").style.color="var(--good)";
+      $("#notifyHint").textContent="✅ ブラウザ通知をオンにしました（アプリを開いている間に届きます）。";
       toast("通知オン");
+    }else if(p==="denied"){
+      $("#notifyHint").style.color="var(--bad)";
+      $("#notifyHint").textContent="通知がブロックされています。ブラウザの設定で許可するか、カレンダー連携をお使いください。";
+      toast("通知が許可されませんでした");
     }else{
       toast("通知が許可されませんでした");
     }
